@@ -1,0 +1,66 @@
+<html>
+	<head>
+		<title>Chat</title>
+	</head>
+	<script>
+		pageTop = '<body bgcolor="#555555">'
+			+'<table width="100%">'
+			+'	<tr>'
+			+'		<td><img src="`/title_banner.png" alt="Welcome!"></td>'
+			+'	</tr>'
+			+'	<tr>'
+			+'		<td><hr><iframe src="`/navigator.html" style="border:none;" height="40"></iframe><hr></td>'
+			+'	</tr>'
+			+'	<tr>'
+			+'		<td>'
+			+'			Please enter your username: <input id="user" placeholder="temporary name"> or <button onclick="navigate(\'/account\')">Login</button><br>'
+			+'			<button onclick="create()">Create New</button> or <button>Join: </button><input>';
+		pageBottom = +'		</td>'
+			+'	</tr>'
+			+'</table>'
+			+'</body>';
+
+		function navigate(location) {
+			window.top.location.href = location;
+		}
+
+		function create() {
+			username = document.getElementById("user").value;
+
+			xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "`/chat/create", true);
+
+			xhttp.onload = function run() {
+				response = xhttp.responseText;
+				lines = response.split("\r\n");
+				if(lines[0] == "created") {
+					window.top.location.href = "`/chat/" + lines[1];
+				} else if(lines[0] == "username unavailable") {
+					document.open();
+					document.write(pageTop + '<br><font color="#FF0000">Username Not Available</font>' + pageBottom);
+				} else {
+					document.open();
+					document.write(pageTop + '<br><font color="#FF0000">Session Creation Failed</font>' + pageBottom);
+				}
+			}
+
+			xhttp.send("create\r\n" + username + "\r\n");
+		}
+	</script>
+	<body bgcolor="#555555">
+		<table width="100%">
+			<tr>
+				<td><img src="`/title_banner.png" alt="Welcome!"></td>
+			</tr>
+			<tr>
+				<td><hr><iframe src="`/navigator.html" style="border:none;" height="40"></iframe><hr></td>
+			</tr>
+			<tr>
+				<td>
+					Please enter your username: <input id="user" placeholder="temporary name"> or <button onclick="navigate('/account')">Login</button><br>
+					<button onclick="create()">Create New</button> or <button>Join: </button><input>
+				</td>
+			</tr>
+		</table>
+	</body>
+</html>

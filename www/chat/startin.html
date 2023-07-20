@@ -1,0 +1,47 @@
+<html>
+	<head>
+		<title>Chat</title>
+	</head>
+	<script>
+		accountPath = "`";
+		account = accountPath.split("/")[2];
+
+		// contacts server to create session and redirects user to chat screen
+		function create() {
+			xhttp = new XMLHttpRequest();
+			xhttp.open("POST", "`/chat/create", true);
+
+			xhttp.onload = function run() {
+				response = xhttp.responseText;
+				lines = response.split("\r\n");
+				if(lines[0] == "created") {
+					window.top.location.href = "`/chat/" + lines[1];
+				} else {
+					document.open();
+					document.write(pageTop + '<br><font color="#FF0000">Session Creation Failed</font>' + pageBottom);
+				}
+			}
+
+			xhttp.send("create");
+		}
+
+		pageTop = '<body bgcolor="#555555">'
+			+'	<table width="100%">'
+			+'		<tr>'
+			+'			<td><img src="/title_banner.png" alt="Welcome!"></td>'
+			+'		</tr>'
+			+'		<tr>'
+			+'			<td><hr><iframe src="`/navigator.html" style="border:none;" height="40"></iframe><hr></td>'
+			+'		</tr>'
+			+'		<tr>'
+			+'			<td>'
+			+'				Username: <input id="user" value="' + account + '" readonly><br>'
+			+'				<button onclick="create()">Create New</button> or <button>Join: </button><input>';
+		pageBottom = '			</td>'
+			+'		</tr>'
+			+'	</table>'
+			+'</body>';
+
+		document.write(pageTop + pageBottom);
+	</script>
+</html>

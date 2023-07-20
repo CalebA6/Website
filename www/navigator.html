@@ -1,0 +1,13 @@
+<html>
+	<head>
+		<title>Navigator</title>
+	</head>
+	<script>
+		function navigate(location) {
+			window.top.location.href = location;
+		}
+	</script>
+	<body>
+		<button onclick="naviagate('`/')">Home</button> | <button onclick="navigate('`/games')">Games</button> | <button onclick="navigate('`/chat')">Chat</button> | <button onclick="navigate('`/account')">Account</button>
+	</body>
+</html>

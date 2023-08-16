@@ -14,6 +14,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.caleba.Connection;
 import net.caleba.Default;
+import net.caleba.Request;
 
 public class Chat implements NonstaticPage {
 
@@ -27,10 +28,10 @@ public class Chat implements NonstaticPage {
 		return false;
 	}
 
-	public byte[] newThread(String method, String page, String httpVersion, Socket connection, String user) {
+	public byte[] newThread(Request request, String user) {
 		try {
-			if(method.equals("GET")) {
-				String[] path = page.split("/");
+			if(request.getMethod().equals("GET")) {
+				String[] path = request.getPath();
 				if(path.length == 1) {
 					return Connection.respondWithFile("chat/default.html", user);
 				} else if(page.contains("start.html")) {
@@ -40,7 +41,7 @@ public class Chat implements NonstaticPage {
 						return Connection.respondWithFile("chat/startin.html", user);
 					}
 				}
-			} else if(method.equals("POST")) {
+			} else if(request.getMethod().equals("POST")) {
 				InputStream conInput = connection.getInputStream();
 				StringBuilder request = new StringBuilder();
 				long start = System.nanoTime();

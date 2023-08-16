@@ -5,9 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +15,7 @@ import java.util.TreeMap;
 import net.caleba.Connection;
 import net.caleba.Default;
 import net.caleba.EasyByteArray;
+import net.caleba.Request;
 import net.caleba.Session;
 
 public class Account implements NonstaticPage {
@@ -34,54 +33,20 @@ public class Account implements NonstaticPage {
 		return false;
 	}
 
-	public byte[] newThread(String method, String page, String httpVersion, Socket connection, String user) {
+	public byte[] newThread(Request request, String user) {
 		try {
 			char[] newLineArray = {13, 10};
 			String newLine = new String(newLineArray);
-			String[] path = page.split("/");
+			String[] path = request.getPath();
 			
 			// Handles Already Logged in User
 			if(user != null) {
-				
-				// Reads Arguments from Socket
-				InputStream conInput = connection.getInputStream();
-				StringBuilder requestBuilder = new StringBuilder();
-				long start = System.nanoTime();
-				while(true) {
-					int in = conInput.read();
-					if(in > -1) {
-						requestBuilder.append((char)in);
-					}
-					int length = requestBuilder.length();
-					try{
-						if(requestBuilder.charAt(length-1) == 10 && requestBuilder.charAt(length-2) == 13 && requestBuilder.charAt(length-3) == 10 && requestBuilder.charAt(length-4) == 13) {
-							break;
-						}
-					} catch(StringIndexOutOfBoundsException e) {
-						
-					}
-					if(System.nanoTime() - start > 3000000000L) {
-						System.err.println("Timed out.");
-						break;
-					}
-				}
-				String request = method + " " + page + " " + httpVersion + "\r\n" + requestBuilder.toString();
-				
-				if(request.substring(0, 4).equals("GET ")) {
+				if(request.getMethod().equals("GET")) {
 					if(path.length == 1) return Connection.respondWithFile("account/accountSuperPage.html", user); else 
 						return Connection.respondWithFile("account/account.html", user);
-				} else if(request.substring(0, 5).equals("POST ")) {                   // Changing Password
+				} else if(request.getMethod().equals("POST")) {                   // Changing Password
 					System.out.println("Password Change Attempt: " + user);
-					int lineZero = 0;
-					String[] data = request.split(newLine);
-					try {
-						while(!data[lineZero].equals("")) {
-							++lineZero;
-						}
-					} catch(ArrayIndexOutOfBoundsException e) {
-						return ("HTTP/1.1 500 NoData" + newLine + newLine + "Failure").getBytes();
-					}
-					if(checkPassword(data[lineZero+1], user.split("/")[0])) {
+					if(checkPassword(request.getDataLine(0), user.split("/")[0])) {
 						File account = new File(accountsFolder.getPath() + "/" + user);
 						EasyByteArray fileData = new EasyByteArray((int)account.length());
 						BufferedInputStream input = new BufferedInputStream(new FileInputStream(account));
@@ -89,7 +54,7 @@ public class Account implements NonstaticPage {
 							fileData.add((byte)input.read());
 						}
 						input.close();
-						String newHash = hash(data[lineZero+2]);
+						String newHash = hash(request.getDataLine(1));
 						for(int i=0; i<8; ++i) {
 							fileData.set(i, (byte)newHash.charAt(i));
 						}
@@ -113,34 +78,25 @@ public class Account implements NonstaticPage {
 					if(user == null) return Connection.respondWithFile("account/main.html", null);
 				}
 				else {
-					if(accountExists(path[1])) {
+					String account = path[1];
+					if(accountExists(account)) {
 						// Handles login
-						if(method.equals("POST")) {
-							if(checkPassword(path[2], path[1])) {
-								System.out.println("Login: " + path[1]);
+						String password = path[2];
+						if(request.getMethod().equals("POST")) {
+							if(checkPassword(password, account)) {
+								System.out.println("Login: " + account);
 								return ("HTTP/1.1 200 Login" + newLine + newLine + "success" + newLine + new Session(sessions).getID()).getBytes();
 							} else {
-								System.out.println("Invalid Password Login Attempt");
+								System.out.println("Invalid Password Login Attempt: " + password);
 								return (("HTTP/1.1 200 Login" + newLine + newLine + "login failure").getBytes());
 							}
 						} else {
 							// Handles session connection
-							Session session = sessions.get(path[2]);
+							Session session = sessions.get(password);
 							if(session == null) {
 								return Connection.respondWithFile("account/relogin.html", null); // If session does not exist
 							}
-							int accountCharacters = path[0].length() + path[1].length() + path[2].length() + 2;
-							StringBuilder subRequest = new StringBuilder();
-							subRequest.append(method);
-							subRequest.append(" ");
-							String subPage = page.substring(accountCharacters);
-							if(subPage.length() < 1 || subPage.charAt(0) != '/') {
-								subRequest.append('/');
-							}
-							subRequest.append(subPage);
-							subRequest.append(" ");
-							subRequest.append(httpVersion);
-							return Connection.getResponse(subRequest.toString(), connection, path[1] + "/" + session.replace());
+							return Connection.getResponse(request.getUserlessRequest(), account + "/" + session.replace());
 						}
 					} else {
 						return (("HTTP/1.1 200 OK" + newLine + newLine + "login failure").getBytes());

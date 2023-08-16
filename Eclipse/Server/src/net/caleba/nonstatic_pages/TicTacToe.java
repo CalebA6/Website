@@ -1,10 +1,10 @@
 package net.caleba.nonstatic_pages;
 
 import java.io.IOException;
-import java.net.Socket;
 
 import net.caleba.Connection;
 import net.caleba.Default;
+import net.caleba.Request;
 
 public class TicTacToe implements NonstaticPage {
 	
@@ -17,10 +17,10 @@ public class TicTacToe implements NonstaticPage {
 		return false;
 	}
 	
-	public byte[] newThread(String method, String page, String httpVersion, Socket connection, String user) {
+	public byte[] newThread(Request request, String user) {
 		char[] newLineArray = {13, 10};
 		String newLine = new String(newLineArray);
-		String[] path = page.split("/");
+		String[] path = request.getPath();
 		String board = "";
 		if(path.length > 2) board = path[2];
 		else {

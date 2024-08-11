@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -176,7 +175,6 @@ public class Request {
 	private Map<String, String> parseHeaders() throws IOException {
 		String headersString = readHeaders();
 		String[] headersArray = headersString.split("\n");
-		System.err.println(Arrays.toString(headersArray));
 		Map<String, String> headers = new HashMap<>();
 		for(String header: headersArray) {
 			String[] heading = header.split(": ");

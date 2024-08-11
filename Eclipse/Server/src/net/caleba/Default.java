@@ -2,10 +2,6 @@ package net.caleba;
 import java.io.File;
 import java.io.IOException;
 
-import net.caleba.nonstatic_pages.Account;
-import net.caleba.nonstatic_pages.Chat;
-import net.caleba.nonstatic_pages.TicTacToe;
-
 public class Default {
 	
 	private static int port = 80;
@@ -23,10 +19,6 @@ public class Default {
 		if(args.length > 2) {
 			mainDirectory = new File(args[2]);
 		}
-		//Initializes Non-static Pages
-		Connection.addNonstaticPage(new TicTacToe());
-		Connection.addNonstaticPage(new Account());
-		Connection.addNonstaticPage(new Chat());
 		//Starts Server
 		new Server();
 	}

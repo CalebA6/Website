@@ -8,10 +8,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -55,11 +53,10 @@ public class Connection extends Thread {
 		String page = request.getPage();
 		for(NonstaticPage potential: nonstaticPages) {
 			if(potential.checkAddress(page)) {
-				return potential.newThread(request, new AccountServices(request));
+				return potential.newThread(request);
 			}
 		}
 		try {
-			System.err.println("Responding with File: " + page);
 			return respondWithFile(page);
 		} catch(IOException e) {
 			char[] newLineArray = {13, 10};
@@ -74,11 +71,11 @@ public class Connection extends Thread {
 		char[] newLineArray = {13, 10};
 		String newLine = new String(newLineArray);
 		StringBuilder response = new StringBuilder();
-		response.append("HTTP/1.1 200 SendingPage" + newLine + newLine);
 		File file = new File(Default.getMainDirectory() + "\\" + page);
 		boolean isImage = false;
 		if(file.exists()) {
 			if(file.isDirectory()) {
+				response.append("HTTP/1.1 200 SendingPage" + newLine + newLine);
 				String[] files = file.list();
 				boolean main = false;
 				boolean index = false;
@@ -104,7 +101,6 @@ public class Connection extends Thread {
 					response = new StringBuilder("HTTP/1.1 200 SendingImage" + newLine + "Cache-Control: max-age=3600" + newLine + "Content-Type: image/png" + newLine);
 					String image = fileToString(file);
 					response.append("Content-Length: " + image.length() + newLine + newLine);
-					//response.append(image);
 				}
 				else response.append(fileToString(file));
 			}
@@ -126,16 +122,11 @@ public class Connection extends Thread {
 	
 	private static String fileToString(File file) throws IOException {
 		StringBuilder contents = new StringBuilder();
-		InputStream reader = new FileInputStream(file);
-		String user = null; // Always site to run while account changes are in progress. 
+		InputStream reader = new FileInputStream(file); 
 		while(true) {
 			int nextByte = reader.read();
 			if(nextByte == -1) break;
-			if(nextByte == 96 && user != null) {
-				contents.append("/account/" + user);
-			} else if(nextByte != 96) {
-				contents.append((char)(nextByte));
-			}
+			else contents.append((char)nextByte);
 		}
 		reader.close();
 		return contents.toString();

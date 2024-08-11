@@ -34,7 +34,7 @@ public class Connection extends Thread {
 	public void run() {
 		try {
 			Request request = new Request(socket);
-			byte[] response = getResponse(request, null);
+			byte[] response = getResponse(request);
 			
 			OutputStream output = socket.getOutputStream();
 			output.write(response);
@@ -50,16 +50,17 @@ public class Connection extends Thread {
 		}
 	}
 	
-	public static byte[] getResponse(Request request, String user) {
-		System.out.println(request.getStart() + "   " + user);
+	public static byte[] getResponse(Request request) {
+		System.out.println(request.getStart());
 		String page = request.getPage();
 		for(NonstaticPage potential: nonstaticPages) {
 			if(potential.checkAddress(page)) {
-				return potential.newThread(request, user);
+				return potential.newThread(request, new AccountServices(request));
 			}
 		}
 		try {
-			return respondWithFile(page, user);
+			System.err.println("Responding with File: " + page);
+			return respondWithFile(page);
 		} catch(IOException e) {
 			char[] newLineArray = {13, 10};
 			String newLine = new String(newLineArray);
@@ -68,7 +69,7 @@ public class Connection extends Thread {
 		}
 	}
 	
-	public static byte[] respondWithFile(String page, String user) throws IOException {
+	public static byte[] respondWithFile(String page) throws IOException {
 		EasyByteArray output = new EasyByteArray();
 		char[] newLineArray = {13, 10};
 		String newLine = new String(newLineArray);
@@ -90,9 +91,9 @@ public class Connection extends Thread {
 					}
 				}
 				if(main) {
-					response.append(fileToString(new File(file.getPath() + "\\default.html"), user));
+					response.append(fileToString(new File(file.getPath() + "\\default.html")));
 				} else if(index) {
-					response.append(fileToString(new File(file.getPath() + "\\index.html"), user));
+					response.append(fileToString(new File(file.getPath() + "\\index.html")));
 				} else {
 					response.append(index(file, page));
 				}
@@ -101,11 +102,11 @@ public class Connection extends Thread {
 				if(page.substring(page.length()-4, page.length()).equals(".png")) {
 					isImage = true;
 					response = new StringBuilder("HTTP/1.1 200 SendingImage" + newLine + "Cache-Control: max-age=3600" + newLine + "Content-Type: image/png" + newLine);
-					String image = fileToString(file, null);
+					String image = fileToString(file);
 					response.append("Content-Length: " + image.length() + newLine + newLine);
 					//response.append(image);
 				}
-				else response.append(fileToString(file, user));
+				else response.append(fileToString(file));
 			}
 		} else {
 			response = new StringBuilder();
@@ -123,9 +124,10 @@ public class Connection extends Thread {
 		return output.toArray();
 	}
 	
-	private static String fileToString(File file, String user) throws IOException {
+	private static String fileToString(File file) throws IOException {
 		StringBuilder contents = new StringBuilder();
 		InputStream reader = new FileInputStream(file);
+		String user = null; // Always site to run while account changes are in progress. 
 		while(true) {
 			int nextByte = reader.read();
 			if(nextByte == -1) break;

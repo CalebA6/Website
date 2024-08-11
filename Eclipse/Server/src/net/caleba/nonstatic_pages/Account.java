@@ -12,9 +12,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import net.caleba.AccountServices;
 import net.caleba.Connection;
 import net.caleba.Default;
 import net.caleba.EasyByteArray;
+import net.caleba.NoResponseException;
 import net.caleba.Request;
 import net.caleba.Session;
 
@@ -32,8 +34,26 @@ public class Account implements NonstaticPage {
 		if(address.substring(0, LOCATION.length()+1).equals(LOCATION + "/")) return true;
 		return false;
 	}
-
-	public byte[] newThread(Request request, String user) {
+	
+	// TODO: what's happened to the 404s?
+	public byte[] newThread(Request request, AccountServices user) {
+		try {
+			// Handles account services
+			return user.getResponse();
+		} catch(NoResponseException e) {
+			String[] path = request.getPath();
+			if(user.isLoggedIn()) {
+				if(path.length == 1) return Connection.respondWithFile("account/accountSuperPage.html"); else 
+					return Connection.respondWithFile("account/account.html");
+			} else {
+				if(path.length == 1) return Connection.respondWithFile("account"); else {
+					if(path[1].equals("main.html")) {
+						return Connection.respondWithFile("account/main.html");
+					}
+				}
+			}
+		}
+		
 		try {
 			char[] newLineArray = {13, 10};
 			String newLine = new String(newLineArray);
@@ -82,6 +102,7 @@ public class Account implements NonstaticPage {
 					if(accountExists(account)) {
 						// Handles login
 						String password = path[2];
+						// TODO: fix bug related to password change that occurs because it uses POST
 						if(request.getMethod().equals("POST")) {
 							if(checkPassword(password, account)) {
 								System.out.println("Login: " + account);

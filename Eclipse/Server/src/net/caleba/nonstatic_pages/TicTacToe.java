@@ -2,6 +2,7 @@ package net.caleba.nonstatic_pages;
 
 import java.io.IOException;
 
+import net.caleba.AccountServices;
 import net.caleba.Connection;
 import net.caleba.Default;
 import net.caleba.Request;
@@ -17,7 +18,7 @@ public class TicTacToe implements NonstaticPage {
 		return false;
 	}
 	
-	public byte[] newThread(Request request, String user) {
+	public byte[] newThread(Request request, AccountServices user) {
 		char[] newLineArray = {13, 10};
 		String newLine = new String(newLineArray);
 		String[] path = request.getPath();
@@ -25,7 +26,7 @@ public class TicTacToe implements NonstaticPage {
 		if(path.length > 2) board = path[2];
 		else {
 			try {
-				return Connection.respondWithFile("games/tictactoe/default.html", null);
+				return Connection.respondWithFile("games/tictactoe/default.html");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -38,7 +39,7 @@ public class TicTacToe implements NonstaticPage {
 			} else if(path[3].equals("main.html")) mainPage = true;
 		} else if(!(board.equals("main.html") || board.equals("board.html"))){
 			try {
-				return Connection.respondWithFile("games/tictactoe/default.html", null);
+				return Connection.respondWithFile("games/tictactoe/default.html");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -60,7 +61,7 @@ public class TicTacToe implements NonstaticPage {
 		}
 		if(mainPage || board.equals("main.html")) {
 			try {
-				return Connection.respondWithFile("games/tictactoe/main.html", null);
+				return Connection.respondWithFile("games/tictactoe/main.html");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}

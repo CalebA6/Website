@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -125,21 +126,21 @@ public class Request {
 	
 	InputStream input;
 	private String start;
-	private String headers;
+	private Map<String, String> headers;
 	private String request;
 	private List<String> data;
 	
 	public Request(Socket socket) throws IOException {
 		this.input = socket.getInputStream();
 		
-		start = parseStart();
+		start = readStart();
 		headers = parseHeaders();
 		request = start + "/r/n" + headers;
 		
 		data = new ArrayList<>();
 	}
 	
-	private Request(InputStream input, String start, String headers, List<String> data) {
+	private Request(InputStream input, String start, Map<String, String> headers, List<String> data) {
 		this.input = input;
 		this.start = start;
 		this.headers = headers;
@@ -148,7 +149,7 @@ public class Request {
 		this.data = data;
 	}
 	
-	private String parseStart() throws IOException {
+	private String readStart() throws IOException {
 		StringBuilder header = new StringBuilder();
 		long start = System.nanoTime();
 		while(true) {
@@ -172,7 +173,19 @@ public class Request {
 		return header.substring(0, header.length()-2);
 	}
 	
-	private String parseHeaders() throws IOException {
+	private Map<String, String> parseHeaders() throws IOException {
+		String headersString = readHeaders();
+		String[] headersArray = headersString.split("\n");
+		System.err.println(Arrays.toString(headersArray));
+		Map<String, String> headers = new HashMap<>();
+		for(String header: headersArray) {
+			String[] heading = header.split(": ");
+			headers.put(heading[0], heading[1]);
+		}
+		return headers;
+	}
+	
+	private String readHeaders() throws IOException {
 		StringBuilder headers = new StringBuilder();
 		long start = System.nanoTime();
 		while(true) {
@@ -191,10 +204,15 @@ public class Request {
 				break;
 			}
 		}
+		if(headers.length() > 4) {
+			if(headers.substring(headers.length() - 4).equals("\r\n\r\n")) {
+				headers = headers.replace(headers.length() - 4, headers.length(), "");
+			}
+		}
 		return headers.toString();
 	}
 	
-	private void parseDataLine() throws IOException {
+	private void readDataLine() throws IOException {
 		StringBuilder line = new StringBuilder();
 		long start = System.nanoTime();
 		while(true) {
@@ -236,11 +254,17 @@ public class Request {
 		return getPage().split("/");
 	}
 	
+	public String getHeader(String header) throws NoSuchHeaderException {
+		String headerValue = headers.get(header);
+		if(headerValue == null) throw new NoSuchHeaderException();
+		return headerValue;
+	}
+	
 	// TODO: exception handling
 	public String getDataLine(int line) {
 		while(data.size() < line) {
 			try {
-				parseDataLine();
+				readDataLine();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

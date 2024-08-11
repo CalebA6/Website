@@ -13,9 +13,11 @@ public class Session implements ActionListener, Comparable<Session> {
 	private Map<String, Session> sessionsSet;
 	private String id;
 	private Session replacement = null;
+	private String user;
 	
-	public Session(Map<String, Session> sessionsSet) {
+	public Session(Map<String, Session> sessionsSet, String user) {
 		this.sessionsSet = sessionsSet;
+		this.user = user;
 		
 		boolean created = false;
 		StringBuilder sessionID = new StringBuilder();
@@ -58,31 +60,25 @@ public class Session implements ActionListener, Comparable<Session> {
 	public String getID() {
 		return id;
 	}
+	
+	public String getUsername() {
+		return user;
+	}
 
 	@Override
 	public int compareTo(Session o) {
 		return id.compareTo(o.id);
-//		try {
-//			return id.compareTo(((Session) o).id);
-//		} catch(ClassCastException e) {
-//			return id.compareTo((String) o);
-//		}
 	}
 	
 	@Override
 	public boolean equals(Object o) {
 		return id.equals(((Session) o).id);
-//		try {
-//			return id.equals(((Session) o).id);
-//		} catch(ClassCastException e) {
-//			return id.equals((String) o);
-//		}
 	}
 	
 	// Replaces session and causes current session to expire much sooner
 	public String replace() {
 		if(replacement == null) {
-			replacement = new Session(sessionsSet);
+			replacement = new Session(sessionsSet, user);
 			timer.stop();
 			timer.setDelay(7000);
 			timer.start();

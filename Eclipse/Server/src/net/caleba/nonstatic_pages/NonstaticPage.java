@@ -1,8 +1,9 @@
 package net.caleba.nonstatic_pages;
 
 import net.caleba.Request;
+import net.caleba.Response;
 
 public interface NonstaticPage {
 	public boolean checkAddress(String address);
-	public byte[] newThread(Request request);
+	public Response newThread(Request request);
 }

@@ -1,19 +1,11 @@
 package net.caleba;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.text.DateFormat;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
-
-import net.caleba.nonstatic_pages.NonstaticPage;
 
 public class Connection extends Thread {
 	
@@ -24,18 +16,13 @@ public class Connection extends Thread {
 		this.secure = secure;
 	}
 	
-	private static Set<NonstaticPage> nonstaticPages = new HashSet<>();
-	static void addNonstaticPage(NonstaticPage addition) {
-		nonstaticPages.add(addition);
-	}
-	
 	public void run() {
 		try {
 			Request request = new Request(socket);
-			byte[] response = getResponse(request);
+			Response response = Response.getResponse(request);
 			
 			OutputStream output = socket.getOutputStream();
-			output.write(response);
+			output.write(response.getBytes());
 			socket.close();
 		} catch(Exception e) {
 			System.err.println(e.toString());
@@ -46,115 +33,6 @@ public class Connection extends Thread {
 			}
 			e.printStackTrace();
 		}
-	}
-	
-	public static byte[] getResponse(Request request) {
-		System.out.println(request.getStart());
-		String page = request.getPage();
-		for(NonstaticPage potential: nonstaticPages) {
-			if(potential.checkAddress(page)) {
-				return potential.newThread(request);
-			}
-		}
-		try {
-			return respondWithFile(page);
-		} catch(IOException e) {
-			char[] newLineArray = {13, 10};
-			String newLine = new String(newLineArray);
-			return ("HTTP/1.1 500 EndOfCode" + newLine + newLine + "<html><head><title>ERROR</title></head>"
-					+ "<body>Something went wrong. <br><a href=\"" + Default.getAddress() + "\">&#8592;Home</a></body></html>").getBytes();
-		}
-	}
-	
-	public static byte[] respondWithFile(String page) throws IOException {
-		EasyByteArray output = new EasyByteArray();
-		char[] newLineArray = {13, 10};
-		String newLine = new String(newLineArray);
-		StringBuilder response = new StringBuilder();
-		File file = new File(Default.getMainDirectory() + "\\" + page);
-		boolean isImage = false;
-		if(file.exists()) {
-			if(file.isDirectory()) {
-				response.append("HTTP/1.1 200 SendingPage" + newLine + newLine);
-				String[] files = file.list();
-				boolean main = false;
-				boolean index = false;
-				for(String f: files) {
-					if(f.equals("default.html")) {
-						main = true;
-					}
-					if(f.equals("index.html")) {
-						index = true;
-					}
-				}
-				if(main) {
-					response.append(fileToString(new File(file.getPath() + "\\default.html")));
-				} else if(index) {
-					response.append(fileToString(new File(file.getPath() + "\\index.html")));
-				} else {
-					response.append(index(file, page));
-				}
-			}
-			if(file.isFile()) {
-				if(page.substring(page.length()-4, page.length()).equals(".png")) {
-					isImage = true;
-					response = new StringBuilder("HTTP/1.1 200 SendingImage" + newLine + "Cache-Control: max-age=3600" + newLine + "Content-Type: image/png" + newLine);
-					String image = fileToString(file);
-					response.append("Content-Length: " + image.length() + newLine + newLine);
-				}
-				else response.append(fileToString(file));
-			}
-		} else {
-			response = new StringBuilder();
-			response.append("HTTP/1.1 404 \"" + page + "\" is not a valid page name. " + newLine + newLine);
-			response.append("<html><head><title>HTTP/1.1 404 \"" + page + "\" is not a valid page name. </title></head>"
-					+ "<body>The page you tried to access does not exist. <br><a href=\"" + Default.getAddress() + "\">&#8592;Home</a></body></html>");
-		}
-		output.add(response.toString().getBytes());
-		if(isImage) {
-			Queue<Byte> image = fileToBytes(file);
-			for(byte i: image) {
-				output.add(i);
-			}
-		}
-		return output.toArray();
-	}
-	
-	private static String fileToString(File file) throws IOException {
-		StringBuilder contents = new StringBuilder();
-		InputStream reader = new FileInputStream(file); 
-		while(true) {
-			int nextByte = reader.read();
-			if(nextByte == -1) break;
-			else contents.append((char)nextByte);
-		}
-		reader.close();
-		return contents.toString();
-	}
-	
-	//Needs Performance Improvements
-	private static Queue<Byte> fileToBytes(File file) throws IOException {
-		Queue<Byte> contents = new LinkedList<>();
-		InputStream reader = new FileInputStream(file);
-		while(true) {
-			int nextByte = reader.read();
-			if(nextByte == -1) break;
-			contents.add((byte)nextByte);
-		}
-		reader.close();
-		return contents;
-	}
-	
-	private static String index(File folder, String page) {
-		StringBuilder html = new StringBuilder();
-		String[] files = folder.list();
-		html.append("<html><head><title>Index</title></head><body><h1>Index of: </h1><br><h2>");
-		html.append(page + "</h2><ul>");
-		for(String file: files) {
-			html.append("<li>" + file);
-		}
-		html.append("</ul></body></html>");
-		return html.toString();
 	}
 	
 	private static File logs = new File(Default.getMainDirectory().getParent() + "/log");

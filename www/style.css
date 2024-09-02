@@ -1,0 +1,33 @@
+body {
+	background-color: #555555;
+}
+
+.outer {
+	margin: 0px;
+	border-width: 0px;
+	padding: 0px;
+}
+
+.main {
+	background-color: #555555;
+	
+	width: 100%;
+	height: 100%;
+	
+	margin: 0px;
+	border-width: 0px;
+	padding: 0px;
+}
+
+#welcome {
+	width: 100%;
+}
+
+#navigator {
+	border: none;
+	height: 40;
+}
+
+table {
+	width: 100%;
+}

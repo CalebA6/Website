@@ -37,6 +37,8 @@
 						document.write(names[i], ': <b>DEAD</b><br>');
 					}
 				}
+				document.write('<br>');
+				document.write('<button onclick="window.location.href = window.location.pathname; ">Play Again</button>');
 				exit();
 			}
 			if(seconds > 0) {
@@ -53,16 +55,13 @@
 				exit();
 			} else {
 				document.write("Round ", round, " in progress. <br><br>");
-				playerNotFound = true;
 				if(player == 0) {
-					while(playerNotFound) {
-						playerToKill = Math.round(Math.random() * (numPlayersLeft - 1));
-						playerToKill = playersLeft[playerToKill];
-						if(playersAlive[playerToKill]) {
-							playerNotFound = false;
-						}
+					playerToKillIndex = Math.round(Math.random() * (numPlayersLeft - 1));
+					playerToKill = playersLeft[playerToKillIndex];
+					if(!playersAlive[playerToKill]) {
+						window.alert('Something went wrong. Sorry :(');
 					}
-					playersLeft.splice(playerToKill, 1);
+					playersLeft.splice(playerToKillIndex, 1);
 				}
 				if(dead) {
 					player = numPlayers;
@@ -87,6 +86,9 @@
 							document.write(names[i], ": <br>");
 						}
 					} else {
+						if((i == player) && !playersAlive[i+1]) {
+							player = player + 1;
+						}
 						document.write(names[i], ': <b>DEAD</b><br>');
 					}
 				}
@@ -128,7 +130,7 @@
 							names = [""];
 							while(o) {
 								if(url.charAt(length-n) == "=") {
-									names[p - 1] = nameBuilder;
+									names[p - 1] = decodeURIComponent(nameBuilder.replaceAll('+', ' '));
 									nameBuilder = "";
 									n = n + 8;
 									n = Math.trunc(Math.log10(p)) + n;
@@ -195,10 +197,10 @@
 		var numPlayers = 0;
 		var i = 1;
 		while(j) {
-			if(url.charAt(length-i) == "=") {
-				if(url.charAt(length-(i+1)) == "s") {
+			if(url.charAt(length-i) == "=") {  // Looking for url query
+				if(url.charAt(length-(i+1)) == "s") {  // Looking for numPlayers
 					getPlayersFunction();
-				} else {
+				} else {  // Looking for playerx where x is some number
 					getNamesFunction();
 				}
 			}
@@ -210,7 +212,6 @@
 		document.write("<p><b>Virtual Russian Roulette</b></p>");
 		document.write("<p>Russian roulette is a made up game where people take turns holding a revolver to their heads that has a random one of its six chambers loaded. Virtual Russian Roulette allows you to play Russian Roulette without the terror. </p>");
 		document.write("<p>In Virtual Russian Roulette you enter the names of you and your friends and watch as you die one by one on the screen. The last one remaining is the winner! </p>");
-		document.write('<p><font color="#ffffff">_</font></p><p><font color="#ff0000">Disclaimer: Do not play Russian Roulette in real life. You may die, and if you don\'t you could be convicted of murder. </font></p>');
 		document.write('<button onclick="playFunction()">Play</button>');
 	</script>
 	<noscript><body>Script failed.</body></noscript>

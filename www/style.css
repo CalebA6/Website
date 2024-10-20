@@ -1,11 +1,6 @@
 body {
 	background-color: #555555;
-}
-
-.outer {
 	margin: 0px;
-	border-width: 0px;
-	padding: 0px;
 }
 
 .main {
@@ -35,4 +30,40 @@ table {
 #player {
 	width: 100%;
 	height: calc((100vw - 40px) / 16 * 9);
+}
+
+button.game {
+	background-color: inherit;
+	border: none;
+	text-align: inherit;
+}
+
+button.game h3 {
+	font-family: Verdana, sans-serif;
+}
+
+button.game p {
+	font-family: Times, Times New Roman, serif;
+}
+
+div.game a {
+	font-family: Verdana, sans-serif;
+	color: #000000;
+	text-decoration: none;
+}
+
+h2 {
+	font-family: Verdana, sans-serif;
+}
+
+iframe.game {
+	width: 640;
+	height: 480;
+	margin: auto;
+	margin-top: 40px;
+	display: block;
+	border-width: 5px;
+	border-color: #000000;
+	border-style: solid;
+	background-color: #FFFFFF;
 }

@@ -241,7 +241,7 @@ public class Request {
 	}
 	
 	public String getPage() {
-		return decodeURL(getStart().split(" ")[1].substring(1));
+		return decodeURL(getStart().split(" ")[1].substring(1).split("\\?")[0]);
 	}
 	
 	public String getHttpVersion() {

@@ -1,0 +1,217 @@
+<html>
+	<head>
+		<title>Virtual Russian Roulette</title>
+	</head>
+	<script>
+		function delay() {
+			runGame();
+		}
+		function runGame() {
+			if(arguments[0] == true) {
+				round = arguments[1];
+				seconds = arguments[2];
+				numPlayers = arguments[3];
+				names = arguments[4];
+				numPlayersLeft = numPlayers;
+				player = 0;
+				dead = false;
+				deathCheck = true;
+				playersAlive = [true];
+				for(i=0; i<numPlayers; i++) {
+					playersAlive[i] = true;
+				}
+				playersLeft = arguments[5];
+			} else {
+				document.body.innerHTML = "";
+			}
+			if(numPlayersLeft == 1) {
+				for(i=0; i<numPlayers; i++) {
+					if(playersAlive[i]) {
+						document.write(names[i], " won! <br><br>");
+					}
+				}
+				for(i=0; i<numPlayers; i++) {
+					if(playersAlive[i]) {
+						document.write(names[i], ': <font color="#FFEE00">WON!</font><br>');
+					} else {
+						document.write(names[i], ': <b>DEAD</b><br>');
+					}
+				}
+				exit();
+			}
+			if(seconds > 0) {
+				document.write("Round ", round, " starts in ", seconds, " seconds. <br><br>");
+				for(i=0; i<numPlayers; i++) {
+					if(playersAlive[i]) {
+						document.write(names[i], ": <br>");
+					} else {
+						document.write(names[i], ": <b>DEAD</b><br>");
+					}
+				}
+				seconds = seconds - 1;
+				window.setTimeout(delay, 1000);
+				exit();
+			} else {
+				document.write("Round ", round, " in progress. <br><br>");
+				playerNotFound = true;
+				if(player == 0) {
+					while(playerNotFound) {
+						playerToKill = Math.round(Math.random() * (numPlayersLeft - 1));
+						playerToKill = playersLeft[playerToKill];
+						if(playersAlive[playerToKill]) {
+							playerNotFound = false;
+						}
+					}
+					playersLeft.splice(playerToKill, 1);
+				}
+				if(dead) {
+					player = numPlayers;
+					deathCheck = true;
+				}
+				for(i=0; i<numPlayers; i++) {
+					if(playersAlive[i]) {
+						if(i <= player) {
+							if(i == playerToKill) {
+								document.write(names[i], ': <font color="#FF0000">DIED</font><br>');
+								if(!dead) {
+									dead = true;
+									deathCheck = false;
+									numPlayersLeft = numPlayersLeft - 1;
+									playersAlive[i] = false;
+									window.setTimeout(delay, 1000);
+								}
+							} else {
+								document.write(names[i], ': <font color="#00FF00">LIVED</font><br>');
+							}
+						} else {
+							document.write(names[i], ": <br>");
+						}
+					} else {
+						document.write(names[i], ': <b>DEAD</b><br>');
+					}
+				}
+				player = player + 1;
+				if(!dead) {
+					window.setTimeout(delay, 200);
+				} else {
+					if(deathCheck) {
+						dead = false;
+						player = 0;
+						seconds = 3;
+						round = round + 1;
+						window.setTimeout(delay, 1000);
+					}
+				}
+			}
+		}
+		function getNamesFunction() {
+			var urlObject = window.location;
+			var url = String(urlObject);
+			var length = url.length;
+			var j = true;
+			var numPlayers = 0;
+			var i = 1;
+			while(j) {
+				if(url.charAt(length-i) == "=") {
+					l = true;
+					k = 0;
+					while(l) {
+						k = k + 1;
+						if(url.charAt(length-(i+k)) == "r") {
+							for(m=1; m<k; m++) {
+								numPlayers = numPlayers + url.charAt(length-(i+m)) * Math.pow(10, m-1);
+							}
+							n = 1;
+							o = true;
+							p = numPlayers;
+							nameBuilder = "";
+							names = [""];
+							while(o) {
+								if(url.charAt(length-n) == "=") {
+									names[p - 1] = nameBuilder;
+									nameBuilder = "";
+									n = n + 8;
+									n = Math.trunc(Math.log10(p)) + n;
+									if(Math.log10(p) == 0) {
+										o = false;
+									}
+									p = p - 1;
+								} else {
+									nameBuilder = url.charAt(length-n) + nameBuilder;
+								}
+								n = n + 1;
+							}
+							playersLeft = [1];
+							for(q=0; q<names.length; q++) {
+								playersLeft[q] = q;
+							}
+							o = false;
+							l = false;
+							j = false;
+						}
+					}
+				} else {
+					//numPlayers = numPlayers + url.charAt(length-i) * Math.pow(10, i-1)
+				}
+			i = i + 1;
+			}
+			round = 1;
+			seconds = 3;
+			runGame(true, round, seconds, numPlayers, names, playersLeft);
+		}
+		function getPlayersFunction() {
+			var urlObject = window.location;
+			var url = String(urlObject);
+			var length = url.length;
+			var j = true;
+			var numPlayers = 0;
+			var i = 1;
+			while(j) {
+				if(url.charAt(length-i) == "=") {
+					j = false;
+				} else {
+					numPlayers = numPlayers + url.charAt(length-i) * Math.pow(10, i-1)
+				}
+			i = i + 1;
+			}
+			document.write('<form name="getNames">');
+			for(i=1; i<=numPlayers; i++) {
+				document.write("Player ", i, ": <br>");
+				document.write('<input type="text" name="player', i, '"><br><br>');
+			}
+			document.write('<input type="submit" value="Play"></form>');
+			exit();
+		}
+		function playFunction() {
+			document.body.innerHTML = '';
+			document.write("Number of players: <br>");
+			document.write('<form name="numInput"><input type="text" name="numPlayers">');
+			document.write('<br><input type="submit" value="Continue"></form>');
+		}
+		var urlObject = window.location;
+		var url = String(urlObject);
+		var length = url.length;
+		var j = true;
+		var numPlayers = 0;
+		var i = 1;
+		while(j) {
+			if(url.charAt(length-i) == "=") {
+				if(url.charAt(length-(i+1)) == "s") {
+					getPlayersFunction();
+				} else {
+					getNamesFunction();
+				}
+			}
+			if(length-i == 0) {
+				j = false;
+			}
+		i = i + 1;
+		}
+		document.write("<p><b>Virtual Russian Roulette</b></p>");
+		document.write("<p>Russian roulette is a made up game where people take turns holding a revolver to their heads that has a random one of its six chambers loaded. Virtual Russian Roulette allows you to play Russian Roulette without the terror. </p>");
+		document.write("<p>In Virtual Russian Roulette you enter the names of you and your friends and watch as you die one by one on the screen. The last one remaining is the winner! </p>");
+		document.write('<p><font color="#ffffff">_</font></p><p><font color="#ff0000">Disclaimer: Do not play Russian Roulette in real life. You may die, and if you don\'t you could be convicted of murder. </font></p>');
+		document.write('<button onclick="playFunction()">Play</button>');
+	</script>
+	<noscript><body>Script failed.</body></noscript>
+</html>

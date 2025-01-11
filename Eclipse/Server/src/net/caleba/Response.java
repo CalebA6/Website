@@ -90,7 +90,7 @@ public class Response {
 	
 	public static Response respondWithFile(String page) throws IOException, ImpossibleException {
 		Response response = null;
-		File file = new File(Default.getMainDirectory() + "\\" + page);
+		File file = new File(Default.getMainDirectory() + "/" + page);
 		if(file.exists()) {
 			if(file.isDirectory()) {
 				response = new Response(200, "Sending Page");
@@ -106,9 +106,9 @@ public class Response {
 					}
 				}
 				if(main) {
-					response.addContent(fileToString(new File(file.getPath() + "\\default.html")));
+					response.addContent(fileToString(new File(file.getPath() + "/default.html")));
 				} else if(index) {
-					response.addContent(fileToString(new File(file.getPath() + "\\index.html")));
+					response.addContent(fileToString(new File(file.getPath() + "/index.html")));
 				} else {
 					response.addContent(index(file, page));
 				}

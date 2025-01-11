@@ -124,7 +124,7 @@ public class Response {
 				}
 				else {
 					response = new Response(200, "Sending Page");
-					response.addContent(fileToString(file));
+					response.addContent(fileToBytes(file));
 				}
 			}
 		} else {

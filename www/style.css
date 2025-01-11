@@ -85,3 +85,35 @@ iframe.game {
 	border-style: solid;
 	background-color: #FFFFFF;
 }
+
+button.download {
+	color: #FFFFFF;
+	text-shadow: 2px 2px 4px #555555;
+	font-size: 32px;
+	border-radius: 5px;
+	background-color: #00FF00;
+}
+
+button.download span {
+	display: inline-block;
+	text-decoration: underline;
+	text-underline-offset: 10px;
+	transform: scaleY(0.75);
+	translate: 0px -4px;
+}
+
+.titledList p {
+	margin-bottom: 0px;
+}
+
+.titledList ol {
+	margin-top: 0px;
+}
+
+.titledList ul {
+	margin-top: 0px;
+}
+
+.spaceTop {
+	padding-top: 16px;
+}

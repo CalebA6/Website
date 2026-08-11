@@ -84,7 +84,7 @@ public class Response {
 			return respondWithFile(page);
 		} catch(Exception e) {
 			Response response = new Response(500, "Server Error");
-			response.addContent("<html><head><title>ERROR</title></head><body>Something went wrong. <br><a href=\"");
+			response.addContent("<html><head><title>Error 500 Server Error</title></head><body>Something went wrong. <br><a href=\"");
 			response.addContent(Default.getAddress());
 			response.addContent("\">&#8592;Home</a></body></html>");
 			return response;
@@ -183,7 +183,7 @@ public class Response {
 	
 	private static Response respondWith404(String page) {
 		Response response = new Response(404, "\"" + page + "\" is not a valid page name. ");
-		response.addContent("<html><head><title>HTTP/1.1 404 \"");
+		response.addContent("<html><head><title>Error 404 \"");
 		response.addContent(page);
 		response.addContent("\" is not a valid page name. </title></head><body>The page you tried to access does not exist. <br><a href=\"");
 		response.addContent(Default.getAddress());

@@ -72,6 +72,9 @@ public class Response {
 	public static Response getResponse(Request request) {
 		System.out.println(request.getStart());
 		String page = request.getPage();
+		if(request.isDirectoryTraversalAttempt()) {
+			return respondWith404(page);
+		}
 		for(NonstaticPage potential: nonstaticPages) {
 			if(potential.checkAddress(page)) {
 				return potential.newThread(request);
@@ -128,12 +131,7 @@ public class Response {
 				}
 			}
 		} else {
-			response = new Response(404, "\"" + page + "\" is not a valid page name. ");
-			response.addContent("<html><head><title>HTTP/1.1 404 \"");
-			response.addContent(page);
-			response.addContent("\" is not a valid page name. </title></head><body>The page you tried to access does not exist. <br><a href=\"");
-			response.addContent(Default.getAddress());
-			response.addContent("\">&#8592;Home</a></body></html>");
+			response = respondWith404(page);
 		}
 		if(response == null) throw new ImpossibleException();
 		return response;
@@ -173,6 +171,16 @@ public class Response {
 		}
 		html.append("</ul></body></html>");
 		return html.toString();
+	}
+	
+	private static Response respondWith404(String page) {
+		Response response = new Response(404, "\"" + page + "\" is not a valid page name. ");
+		response.addContent("<html><head><title>HTTP/1.1 404 \"");
+		response.addContent(page);
+		response.addContent("\" is not a valid page name. </title></head><body>The page you tried to access does not exist. <br><a href=\"");
+		response.addContent(Default.getAddress());
+		response.addContent("\">&#8592;Home</a></body></html>");
+		return response;
 	}
 
 }

@@ -249,7 +249,17 @@ public class Request {
 	}
 	
 	public String[] getPath() {
-		return getPage().split("/");
+		return getPage().split("/|\\\\");
+	}
+	
+	public boolean isDirectoryTraversalAttempt() {
+		for(String directory: getPath()) {
+			if(directory.equals("..")) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public String getHeader(String header) throws NoSuchHeaderException {

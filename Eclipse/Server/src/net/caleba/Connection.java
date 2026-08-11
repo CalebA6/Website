@@ -25,13 +25,12 @@ public class Connection extends Thread {
 			output.write(response.getBytes());
 			socket.close();
 		} catch(Exception e) {
-			System.err.println(e.toString());
+			new Logger().logError(e);
 			try {
 				socket.close();
 			} catch (IOException e1) {
-				e1.printStackTrace();
+				new Logger().logError(e1);
 			}
-			e.printStackTrace();
 		}
 	}
 	

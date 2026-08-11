@@ -165,7 +165,7 @@ public class Request {
 				
 			}
 			if(System.nanoTime() - start > 3000000000L) {
-				System.err.println("Timed out.");
+				new Logger().logError("Timed out.");
 				break;
 			}
 		}
@@ -198,7 +198,7 @@ public class Request {
 				}
 			} catch(StringIndexOutOfBoundsException e) { }
 			if(System.nanoTime() - start > 3000000000L) {
-				System.err.println("Timed out.");
+				new Logger().logError("Timed out.");
 				break;
 			}
 		}
@@ -226,7 +226,7 @@ public class Request {
 				}
 			} catch(StringIndexOutOfBoundsException e) { }
 			if(System.nanoTime() - start > 3000000000L) {
-				System.err.println("Timed out.");
+				new Logger().logError("Timed out.");
 				break;
 			}
 		}

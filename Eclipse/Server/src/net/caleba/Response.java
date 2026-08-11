@@ -70,7 +70,7 @@ public class Response {
 	}
 	
 	public static Response getResponse(Request request) {
-		System.out.println(request.getStart());
+		new Logger().logInfo(request.getStart());
 		String page = request.getPage();
 		if(request.isDirectoryTraversalAttempt()) {
 			return respondWith404(page);

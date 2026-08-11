@@ -54,7 +54,7 @@ public class Session implements ActionListener, Comparable<Session> {
 	public void actionPerformed(ActionEvent e) {
 		sessionsSet.remove(id);
 		timer.stop();
-		System.out.println("Session timed out");
+		new Logger().logInfo("Session timed out");
 	}
 	
 	public String getID() {

@@ -213,7 +213,7 @@ public class Request {
 				break;
 			}
 		}
-		if(headers.length() > 4) {
+		if(headers.length() >= 4) {
 			if(headers.substring(headers.length() - 4).equals("\r\n\r\n")) {
 				headers = headers.replace(headers.length() - 4, headers.length(), "");
 			}

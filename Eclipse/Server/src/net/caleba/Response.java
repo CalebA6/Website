@@ -91,6 +91,14 @@ public class Response {
 		}
 	}
 	
+	public static Response getTimeoutResponse() {
+		Response response = new Response(408, "Request Timeout");
+		response.addContent("<html><head><title>Error 408 Request Timeout</title></head><body>The server failed to load your request in a timely manner. <br><a href=\"\">&#8635;Try again</a><br><a href=\"");
+		response.addContent(Default.getAddress());
+		response.addContent("\">&#8592;Home</a></body></html>");
+		return response;
+	}
+	
 	public static Response respondWithFile(String page) throws IOException, ImpossibleException {
 		Response response = null;
 		File file = new File(Default.getMainDirectory() + "/" + page);

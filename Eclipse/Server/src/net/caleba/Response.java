@@ -71,10 +71,10 @@ public class Response {
 	
 	public static Response getResponse(Request request) {
 		System.out.println(request.getStart());
-		String page = request.getPage();
 		if(request.isDirectoryTraversalAttempt()) {
-			return respondWith404(page);
+			return respondWith404();
 		}
+		String page = request.getPage();
 		for(NonstaticPage potential: nonstaticPages) {
 			if(potential.checkAddress(page)) {
 				return potential.newThread(request);
@@ -139,7 +139,7 @@ public class Response {
 				}
 			}
 		} else {
-			response = respondWith404(page);
+			response = respondWith404();
 		}
 		if(response == null) throw new ImpossibleException();
 		return response;
@@ -181,11 +181,9 @@ public class Response {
 		return html.toString();
 	}
 	
-	private static Response respondWith404(String page) {
-		Response response = new Response(404, "\"" + page + "\" is not a valid page name. ");
-		response.addContent("<html><head><title>Error 404 \"");
-		response.addContent(page);
-		response.addContent("\" is not a valid page name. </title></head><body>The page you tried to access does not exist. <br><a href=\"");
+	private static Response respondWith404() {
+		Response response = new Response(404, "Page Not Found");
+		response.addContent("<html><head><title>Error 404 Page Not Found</title></head><body>The page you tried to access does not exist. <br><a href=\"");
 		response.addContent(Default.getAddress());
 		response.addContent("\">&#8592;Home</a></body></html>");
 		return response;

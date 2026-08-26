@@ -10,9 +10,11 @@ import java.util.Date;
 public class Connection extends Thread {
 	
 	private Socket socket;
+	private Logger logger;
 	private boolean secure;
-	Connection(Socket socket, boolean secure) {
+	Connection(Socket socket, Logger logger, boolean secure) {
 		this.socket = socket;
+		this.logger = logger;
 		this.secure = secure;
 	}
 	
@@ -21,8 +23,8 @@ public class Connection extends Thread {
 			Request request;
 			Response response;
 			try {
-				request = new Request(socket);
-				response = Response.getResponse(request);
+				request = new Request(socket, logger);
+				response = Response.getResponse(request, logger);
 			} catch (IncompleteHeadLineException e) {
 				if (e.isTimeout()) {
 					response = Response.getTimeoutResponse();
@@ -35,11 +37,11 @@ public class Connection extends Thread {
 			output.write(response.getBytes());
 			socket.close();
 		} catch(Exception e) {
-			new Logger().logError(e);
+			logger.logError(e);
 			try {
 				socket.close();
 			} catch (IOException e1) {
-				new Logger().logError(e1);
+				logger.logError(e1);
 			}
 		}
 	}

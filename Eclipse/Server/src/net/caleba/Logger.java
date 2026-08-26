@@ -8,12 +8,27 @@ import java.time.format.DateTimeFormatter;
 
 public class Logger {
 	
+	private static int nextId = 0;
+	private int id;
+	
+	public Logger() {
+		id = getNextId();
+	}
+	
+	private synchronized int getNextId() {
+		if(nextId < 0) {
+			return nextId = 0;
+		} else {
+			return nextId++;
+		}
+	}
+	
 	public void logInfo(String info) {
-		print(getTime() + " " + info, System.out);
+		print(id + " " + getTime() + " " + info, System.out);
 	}
 	
 	public void logError(String error) {
-		print(getTime() + " " + error, System.err);
+		print(id + " " + getTime() + " " + error, System.err);
 	}
 	
 	public void logError(Exception error) {
@@ -23,7 +38,7 @@ public class Logger {
 		traceStringWriterWriter.flush();
 		traceStringWriterWriter.close();
 		traceStringWriter.flush();
-		print(getTime() + " " + traceStringWriter.toString().trim(), System.err);
+		print(id + " " + getTime() + " " + traceStringWriter.toString().trim(), System.err);
 	}
 	
 	private synchronized void print(String message, PrintStream stream) {

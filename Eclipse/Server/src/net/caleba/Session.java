@@ -11,13 +11,15 @@ public class Session implements ActionListener, Comparable<Session> {
 	
 	private Timer timer = new Timer(1_800_000 /* 30min */, this);
 	private Map<String, Session> sessionsSet;
+	private Logger logger;
 	private String id;
 	private Session replacement = null;
 	private String user;
 	
-	public Session(Map<String, Session> sessionsSet, String user) {
+	public Session(Map<String, Session> sessionsSet, String user, Logger logger) {
 		this.sessionsSet = sessionsSet;
 		this.user = user;
+		this.logger = logger;
 		
 		boolean created = false;
 		StringBuilder sessionID = new StringBuilder();
@@ -54,7 +56,7 @@ public class Session implements ActionListener, Comparable<Session> {
 	public void actionPerformed(ActionEvent e) {
 		sessionsSet.remove(id);
 		timer.stop();
-		new Logger().logInfo("Session timed out");
+		logger.logInfo("Session timed out");
 	}
 	
 	public String getID() {
@@ -78,7 +80,7 @@ public class Session implements ActionListener, Comparable<Session> {
 	// Replaces session and causes current session to expire much sooner
 	public String replace() {
 		if(replacement == null) {
-			replacement = new Session(sessionsSet, user);
+			replacement = new Session(sessionsSet, user, logger);
 			timer.stop();
 			timer.setDelay(7000);
 			timer.start();

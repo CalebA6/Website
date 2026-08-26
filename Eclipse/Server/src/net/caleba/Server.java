@@ -11,8 +11,9 @@ public class Server{
 		new SecureServer().start();
 		ServerSocket server = new ServerSocket(Default.getPort());
 		while(true) {
-			new Connection(server.accept(), false).start();
-			new Logger().logInfo("Page loaded. ");
+			Logger logger = new Logger();
+			new Connection(server.accept(), logger, false).start();
+			logger.logInfo("Page loaded. ");
 		}
 	}
 	
@@ -26,8 +27,9 @@ class SecureServer extends Thread {
 			server.setEnabledProtocols(new String[] {"TLSv1.3"});
 			server.setEnabledCipherSuites(new String[] {"TLS_AES_128_GCM_SHA256"});
 			while(true) {
-				new Connection(server.accept(), true).start();
-				new Logger().logInfo("Page loaded securely. ");
+				Logger logger = new Logger();
+				new Connection(server.accept(), logger, true).start();
+				logger.logInfo("Page loaded securely. ");
 			}
 		} catch(Exception e) {
 			new Logger().logError("Secure Server Failed: " + e.toString());

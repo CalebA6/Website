@@ -124,13 +124,15 @@ public class Request {
 	}
 	
 	InputStream input;
+	private Logger logger;
 	private String start;
 	private Map<String, String> headers;
 	private String request;
 	private List<String> data;
 	
-	public Request(Socket socket) throws IOException, IncompleteHeadLineException {
+	public Request(Socket socket, Logger logger) throws IOException, IncompleteHeadLineException {
 		this.input = socket.getInputStream();
+		this.logger = logger;
 		
 		start = readStart();
 		headers = parseHeaders();
@@ -139,8 +141,9 @@ public class Request {
 		data = new ArrayList<>();
 	}
 	
-	private Request(InputStream input, String start, Map<String, String> headers, List<String> data) {
+	private Request(InputStream input, Logger logger, String start, Map<String, String> headers, List<String> data) {
 		this.input = input;
+		this.logger = logger;
 		this.start = start;
 		this.headers = headers;
 		this.request = start + "/r/n" + headers;
@@ -167,7 +170,7 @@ public class Request {
 			}
 			if(System.nanoTime() - start > 3000000000L) {
 				timeout = true;
-				new Logger().logError("Timed out.");
+				logger.logError("Timed out.");
 				break;
 			}
 		}
@@ -186,9 +189,9 @@ public class Request {
 			if(heading.length == 2) {
 				headers.put(heading[0], heading[1]);
 			} else if(heading.length > 2) {
-				new Logger().logError("Encountered header containing slit: " + header);
+				logger.logError("Encountered header containing slit: " + header);
 			} else {
-				new Logger().logError("Encountered incomplete header: " + header);
+				logger.logError("Encountered incomplete header: " + header);
 			}
 		}
 		return headers;
@@ -209,7 +212,7 @@ public class Request {
 				}
 			} catch(StringIndexOutOfBoundsException e) { }
 			if(System.nanoTime() - start > 3000000000L) {
-				new Logger().logError("Timed out.");
+				logger.logError("Timed out.");
 				break;
 			}
 		}
@@ -237,7 +240,7 @@ public class Request {
 				}
 			} catch(StringIndexOutOfBoundsException e) { }
 			if(System.nanoTime() - start > 3000000000L) {
-				new Logger().logError("Timed out.");
+				logger.logError("Timed out.");
 				break;
 			}
 		}
@@ -285,7 +288,7 @@ public class Request {
 			try {
 				readDataLine();
 			} catch (IOException e) {
-				new Logger().logError(e);
+				logger.logError(e);
 			}
 		}
 		return data.get(line);
@@ -305,7 +308,7 @@ public class Request {
 		subRequest.append(subPage);
 		subRequest.append(" ");
 		subRequest.append(getHttpVersion());
-		return new Request(input, subRequest.toString(), headers, data);
+		return new Request(input, logger, subRequest.toString(), headers, data);
 	}
 	
 	@Override

@@ -69,8 +69,8 @@ public class Response {
 		nonstaticPages.add(addition);
 	}
 	
-	public static Response getResponse(Request request) {
-		new Logger().logInfo(request.getStart());
+	public static Response getResponse(Request request, Logger logger) {
+		logger.logInfo(request.getStart());
 		if(request.isDirectoryTraversalAttempt()) {
 			return respondWith404();
 		}

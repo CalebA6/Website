@@ -47,7 +47,7 @@ public class Logger {
 	}
 	
 	private synchronized int getLogNum() {
-		return ++log;
+		return log++;
 	}
 	
 	private String getTime() {

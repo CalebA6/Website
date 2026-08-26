@@ -10,15 +10,14 @@ import java.util.Date;
 public class Connection extends Thread {
 	
 	private Socket socket;
-	private Logger logger;
 	private boolean secure;
-	Connection(Socket socket, Logger logger, boolean secure) {
+	Connection(Socket socket, boolean secure) {
 		this.socket = socket;
-		this.logger = logger;
 		this.secure = secure;
 	}
 	
 	public void run() {
+		Logger logger = new Logger();
 		try {
 			Request request;
 			Response response;

@@ -129,7 +129,7 @@ public class Request {
 	private String request;
 	private List<String> data;
 	
-	public Request(Socket socket) throws IOException {
+	public Request(Socket socket) throws IOException, IncompleteHeadLineException {
 		this.input = socket.getInputStream();
 		
 		start = readStart();
@@ -148,9 +148,10 @@ public class Request {
 		this.data = data;
 	}
 	
-	private String readStart() throws IOException {
+	private String readStart() throws IOException, IncompleteHeadLineException {
 		StringBuilder header = new StringBuilder();
 		long start = System.nanoTime();
+		boolean timeout = false;
 		while(true) {
 			int in = input.read();
 			if(in > -1) {
@@ -165,11 +166,15 @@ public class Request {
 				
 			}
 			if(System.nanoTime() - start > 3000000000L) {
+				timeout = true;
 				new Logger().logError("Timed out.");
 				break;
 			}
 		}
-		return header.substring(0, header.length()-2);
+		if(header.length() >= 2 && header.substring(header.length() - 2).equals("\r\n")) {
+			return header.substring(0, header.length()-2);
+		}
+		throw new IncompleteHeadLineException(timeout);
 	}
 	
 	private Map<String, String> parseHeaders() throws IOException {
@@ -178,7 +183,13 @@ public class Request {
 		Map<String, String> headers = new HashMap<>();
 		for(String header: headersArray) {
 			String[] heading = header.split(": ");
-			headers.put(heading[0], heading[1]);
+			if(heading.length == 2) {
+				headers.put(heading[0], heading[1]);
+			} else if(heading.length > 2) {
+				new Logger().logError("Encountered header containing slit: " + header);
+			} else {
+				new Logger().logError("Encountered incomplete header: " + header);
+			}
 		}
 		return headers;
 	}
@@ -202,7 +213,7 @@ public class Request {
 				break;
 			}
 		}
-		if(headers.length() > 4) {
+		if(headers.length() >= 4) {
 			if(headers.substring(headers.length() - 4).equals("\r\n\r\n")) {
 				headers = headers.replace(headers.length() - 4, headers.length(), "");
 			}
@@ -274,8 +285,7 @@ public class Request {
 			try {
 				readDataLine();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				new Logger().logError(e);
 			}
 		}
 		return data.get(line);

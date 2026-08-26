@@ -18,8 +18,18 @@ public class Connection extends Thread {
 	
 	public void run() {
 		try {
-			Request request = new Request(socket);
-			Response response = Response.getResponse(request);
+			Request request;
+			Response response;
+			try {
+				request = new Request(socket);
+				response = Response.getResponse(request);
+			} catch (IncompleteHeadLineException e) {
+				if (e.isTimeout()) {
+					response = Response.getTimeoutResponse();
+				} else {
+					throw e;
+				}
+			}
 			
 			OutputStream output = socket.getOutputStream();
 			output.write(response.getBytes());

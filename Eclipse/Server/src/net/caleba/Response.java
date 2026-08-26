@@ -71,10 +71,10 @@ public class Response {
 	
 	public static Response getResponse(Request request) {
 		new Logger().logInfo(request.getStart());
-		String page = request.getPage();
 		if(request.isDirectoryTraversalAttempt()) {
-			return respondWith404(page);
+			return respondWith404();
 		}
+		String page = request.getPage();
 		for(NonstaticPage potential: nonstaticPages) {
 			if(potential.checkAddress(page)) {
 				return potential.newThread(request);
@@ -84,11 +84,19 @@ public class Response {
 			return respondWithFile(page);
 		} catch(Exception e) {
 			Response response = new Response(500, "Server Error");
-			response.addContent("<html><head><title>ERROR</title></head><body>Something went wrong. <br><a href=\"");
+			response.addContent("<html><head><title>Error 500 Server Error</title></head><body>Something went wrong. <br><a href=\"");
 			response.addContent(Default.getAddress());
 			response.addContent("\">&#8592;Home</a></body></html>");
 			return response;
 		}
+	}
+	
+	public static Response getTimeoutResponse() {
+		Response response = new Response(408, "Request Timeout");
+		response.addContent("<html><head><title>Error 408 Request Timeout</title></head><body>The server failed to load your request in a timely manner. <br><a href=\"\">&#8635;Try again</a><br><a href=\"");
+		response.addContent(Default.getAddress());
+		response.addContent("\">&#8592;Home</a></body></html>");
+		return response;
 	}
 	
 	public static Response respondWithFile(String page) throws IOException, ImpossibleException {
@@ -131,7 +139,7 @@ public class Response {
 				}
 			}
 		} else {
-			response = respondWith404(page);
+			response = respondWith404();
 		}
 		if(response == null) throw new ImpossibleException();
 		return response;
@@ -173,11 +181,9 @@ public class Response {
 		return html.toString();
 	}
 	
-	private static Response respondWith404(String page) {
-		Response response = new Response(404, "\"" + page + "\" is not a valid page name. ");
-		response.addContent("<html><head><title>HTTP/1.1 404 \"");
-		response.addContent(page);
-		response.addContent("\" is not a valid page name. </title></head><body>The page you tried to access does not exist. <br><a href=\"");
+	private static Response respondWith404() {
+		Response response = new Response(404, "Page Not Found");
+		response.addContent("<html><head><title>Error 404 Page Not Found</title></head><body>The page you tried to access does not exist. <br><a href=\"");
 		response.addContent(Default.getAddress());
 		response.addContent("\">&#8592;Home</a></body></html>");
 		return response;

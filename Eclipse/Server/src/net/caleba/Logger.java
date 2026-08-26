@@ -10,6 +10,7 @@ public class Logger {
 	
 	private static int nextId = 0;
 	private int id;
+	private int log = 0;
 	
 	public Logger() {
 		id = getNextId();
@@ -24,11 +25,11 @@ public class Logger {
 	}
 	
 	public void logInfo(String info) {
-		print(id + " " + getTime() + " " + info, System.out);
+		print(id + " " + getLogNum() + " " + getTime() + " " + info, System.out);
 	}
 	
 	public void logError(String error) {
-		print(id + " " + getTime() + " " + error, System.err);
+		print(id + " " + getLogNum() + " " + getTime() + " " + error, System.err);
 	}
 	
 	public void logError(Exception error) {
@@ -38,11 +39,15 @@ public class Logger {
 		traceStringWriterWriter.flush();
 		traceStringWriterWriter.close();
 		traceStringWriter.flush();
-		print(id + " " + getTime() + " " + traceStringWriter.toString().trim(), System.err);
+		print(id + " " + getLogNum() + " " + getTime() + " " + traceStringWriter.toString().trim(), System.err);
 	}
 	
 	private synchronized void print(String message, PrintStream stream) {
 		stream.println(message);
+	}
+	
+	private synchronized int getLogNum() {
+		return ++log;
 	}
 	
 	private String getTime() {

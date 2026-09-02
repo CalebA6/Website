@@ -17,7 +17,7 @@ public class Connection extends Thread {
 	}
 	
 	public void run() {
-		Logger logger = new Logger();
+		Logger logger = new Logger(socket.getInetAddress(), socket.getPort());
 		try {
 			Request request;
 			Response response;

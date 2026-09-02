@@ -3,6 +3,7 @@ package net.caleba;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -11,9 +12,13 @@ public class Logger {
 	private static int nextId = 0;
 	private int id;
 	private int log = 0;
+	private InetAddress ipAddress;
+	private int port;
 	
-	public Logger() {
+	public Logger(InetAddress ipAddress, int port) {
 		id = getNextId();
+		this.ipAddress = ipAddress;
+		this.port = port;
 	}
 	
 	private synchronized int getNextId() {
@@ -25,11 +30,11 @@ public class Logger {
 	}
 	
 	public void logInfo(String info) {
-		print(id + " " + getLogNum() + " " + getTime() + " " + info, System.out);
+		print(getPrefix() + info, System.out);
 	}
 	
 	public void logError(String error) {
-		print(id + " " + getLogNum() + " " + getTime() + " " + error, System.err);
+		print(getPrefix() + error, System.err);
 	}
 	
 	public void logError(Exception error) {
@@ -39,18 +44,27 @@ public class Logger {
 		traceStringWriterWriter.flush();
 		traceStringWriterWriter.close();
 		traceStringWriter.flush();
-		print(id + " " + getLogNum() + " " + getTime() + " " + traceStringWriter.toString().trim(), System.err);
+		print(getPrefix() + traceStringWriter.toString().trim(), System.err);
 	}
 	
-	private synchronized void print(String message, PrintStream stream) {
+	public static void logGeneralError(String error) {
+		print(getTime() + " " + error, System.err);
+	}
+	
+	private synchronized static void print(String message, PrintStream stream) {
 		stream.println(message);
+	}
+	
+	private String getPrefix() {
+		boolean ipv6 = ipAddress.getAddress().length == 16;
+		return id + " " + getLogNum() + " " + getTime() + " " + (ipv6 ? "[" : "") + ipAddress.getHostAddress() + (ipv6 ? "]" : "") + ":" + port + " ";
 	}
 	
 	private synchronized int getLogNum() {
 		return log++;
 	}
 	
-	private String getTime() {
+	private static String getTime() {
 		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyLLLdd HH:mm:ss")).toUpperCase();
 	}
 

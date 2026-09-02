@@ -28,7 +28,7 @@ class SecureServer extends Thread {
 				new Connection(server.accept(), true).start();
 			}
 		} catch(Exception e) {
-			new Logger().logError("Secure Server Failed: " + e.toString());
+			Logger.logGeneralError("Secure Server Failed: " + e.toString());
 			System.exit(1);
 		}
 	}

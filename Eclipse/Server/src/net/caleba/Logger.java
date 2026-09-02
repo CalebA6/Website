@@ -4,7 +4,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 
 public class Logger {
@@ -65,7 +65,7 @@ public class Logger {
 	}
 	
 	private static String getTime() {
-		return LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyLLLdd HH:mm:ss")).toUpperCase();
+		return OffsetDateTime.now().format(DateTimeFormatter.ofPattern("yyyyLLLdd HH:mm:ssxxx")).toUpperCase();
 	}
 
 }

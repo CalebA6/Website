@@ -84,7 +84,7 @@ public class Response {
 			return respondWithFile(page);
 		} catch(Exception e) {
 			Response response = new Response(500, "Server Error");
-			response.addContent("<html><head><title>Error 500 Server Error</title></head><body>Something went wrong. <br><a href=\"");
+			response.addContent("<html><head><title>Error 500 Server Error</title><link rel=\"icon\" href=\"/favicon.png\"></head><body>Something went wrong. <br><a href=\"");
 			response.addContent(Default.getAddress());
 			response.addContent("\">&#8592;Home</a></body></html>");
 			return response;
@@ -93,7 +93,8 @@ public class Response {
 	
 	public static Response getTimeoutResponse() {
 		Response response = new Response(408, "Request Timeout");
-		response.addContent("<html><head><title>Error 408 Request Timeout</title></head><body>The server failed to load your request in a timely manner. <br><a href=\"\">&#8635;Try again</a><br><a href=\"");
+		response.addContent("<html><head><title>Error 408 Request Timeout</title><link rel=\"icon\" href=\"/favicon.png\"></head>");
+		response.addContent("<body>The server failed to load your request in a timely manner. <br><a href=\"\">&#8635;Try again</a><br><a href=\"");
 		response.addContent(Default.getAddress());
 		response.addContent("\">&#8592;Home</a></body></html>");
 		return response;
@@ -172,7 +173,7 @@ public class Response {
 	public static String index(File folder, String page) {
 		StringBuilder html = new StringBuilder();
 		String[] files = folder.list();
-		html.append("<html><head><title>Index</title></head><body><h1>Index of: </h1><br><h2>");
+		html.append("<html><head><title>Index</title><link rel=\"icon\" href=\"/favicon.png\"></head><body><h1>Index of: </h1><br><h2>");
 		html.append(page + "</h2><ul>");
 		for(String file: files) {
 			html.append("<li>" + file);
@@ -183,7 +184,8 @@ public class Response {
 	
 	private static Response respondWith404() {
 		Response response = new Response(404, "Page Not Found");
-		response.addContent("<html><head><title>Error 404 Page Not Found</title></head><body>The page you tried to access does not exist. <br><a href=\"");
+		response.addContent("<html><head><title>Error 404 Page Not Found</title><link rel=\"icon\" href=\"/favicon.png\"></head>");
+		response.addContent("<body>The page you tried to access does not exist. <br><a href=\"");
 		response.addContent(Default.getAddress());
 		response.addContent("\">&#8592;Home</a></body></html>");
 		return response;
